@@ -1,5 +1,5 @@
 // src/features/career/StudentModal.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useApp } from "../../contexts/AppContext";
 import { Button } from "../../Components/ui/Button";
 import { Input } from "../../Components/ui/Input";
@@ -17,29 +17,10 @@ export const StudentModal: React.FC<StudentModalProps> = ({
   const { student } = state;
 
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    studentId: "",
+    fullName: student?.fullName || "",
+    email: student?.email || "",
+    studentId: student?.studentId || "",
   });
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    if (student) {
-      setFormData({
-        fullName: student.fullName,
-        email: student.email || "",
-        studentId: student.studentId || "",
-      });
-      setIsEditing(false);
-    } else {
-      setFormData({
-        fullName: "",
-        email: "",
-        studentId: "",
-      });
-      setIsEditing(true);
-    }
-  }, [student]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
