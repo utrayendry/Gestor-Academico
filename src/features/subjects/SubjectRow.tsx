@@ -1,4 +1,5 @@
 // src/features/subjects/SubjectRow.tsx
+
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useApp } from "../../contexts/AppContext";
 import { Icon } from "../../Components/ui/Icon";
@@ -21,14 +22,17 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
   const [tempName, setTempName] = useState(subject.name);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Focus input when entering edit mode
   useEffect(() => {
     if (isEditing && inputRef.current) {
       inputRef.current.focus();
     }
   }, [isEditing]);
 
+  // Enter edit mode on name click
   const handleNameClick = () => setIsEditing(true);
 
+  // Save name on blur
   const handleNameBlur = () => {
     setIsEditing(false);
     if (tempName.trim() && tempName !== subject.name) {
@@ -38,6 +42,7 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
     }
   };
 
+  // Handle keyboard navigation in edit mode
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       setIsEditing(false);
@@ -50,6 +55,7 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
     }
   };
 
+  // Update grade on input change
   const handleGradeChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
@@ -58,14 +64,16 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
     [yearId, semesterId, subject.id, updateSubjectGrade],
   );
 
+  // Delete subject with confirmation
   const handleDelete = useCallback(() => {
-    if (confirm("Delete this subject?")) {
+    if (confirm("¿Eliminar esta materia?")) {
       deleteSubject(yearId, semesterId, subject.id);
     }
   }, [yearId, semesterId, subject.id, deleteSubject]);
 
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+      {/* Subject name cell */}
       <td className="py-3 px-4">
         {isEditing ? (
           <input
@@ -87,6 +95,7 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
         )}
       </td>
 
+      {/* Grade input cell */}
       <td className="py-3 px-4">
         <input
           type="text"
@@ -98,11 +107,12 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
         />
       </td>
 
+      {/* Delete action cell */}
       <td className="py-3 px-4 text-center">
         <button
           onClick={handleDelete}
-          className="p-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100 dark:hover:bg-red-900/30"
-          aria-label="Delete subject"
+          className="p-1 rounded-md lg:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-100 active:bg-red-100 dark:hover:bg-red-900/30"
+          aria-label="Eliminar materia"
         >
           <Icon
             name="delete"

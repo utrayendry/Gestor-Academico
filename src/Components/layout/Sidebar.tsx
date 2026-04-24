@@ -24,10 +24,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const { state, addYear, selectYear, deleteYear } = useApp();
   const { years, selectedYearId, career } = state;
 
+  // Determine sidebar visibility based on device type
   const showSidebar = isMobile ? isMobileOpen : true;
+
+  // Handle year selection and close mobile sidebar
+  const handleYearSelect = (yearId: string) => {
+    selectYear(yearId);
+    // Close sidebar on mobile after selection
+    if (isMobile) {
+      onCloseMobile();
+    }
+  };
 
   return (
     <>
+      {/* Mobile overlay backdrop */}
       {isMobile && isMobileOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40"
@@ -35,6 +46,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         />
       )}
 
+      {/* Sidebar container */}
       <aside
         className={`
         fixed top-0 left-0 h-full z-50
@@ -44,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         ${showSidebar ? "translate-x-0" : "-translate-x-full"}
         `}
       >
-        {/* botón original flotante */}
+        {/* Toggle expand button - desktop only */}
         {!isMobile && (
           <button
             onClick={onToggleExpand}
@@ -60,17 +72,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         <div className="flex flex-col h-full">
-          {/* Logo */}
+          {/* App logo and branding */}
           <div className="p-5 border-b border-slate-700">
             <div className="flex items-center gap-3">
-              {/* tamaño fijo */}
-              <div className="w-9 h-9 flex items-center justify-center bg-blue-600 rounded-xl flex-shrink-0">
+              <div className="w-9 h-9 flex items-center justify-center bg-blue-600 rounded-xl shrink-0">
                 <Icon name="book" className="w-5 h-5 text-white" />
               </div>
 
               {isExpanded && (
                 <div className="overflow-hidden">
-                  <h2 className="text-white font-semibold">Grade Manager</h2>
+                  <h2 className="text-white font-semibold">Gestor de Notas</h2>
 
                   {career && (
                     <p className="text-xs text-slate-400">{career.name}</p>
@@ -80,7 +91,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           </div>
 
-          {/* Years */}
+          {/* Years navigation section */}
           <div className="flex-1 p-4 overflow-y-auto">
             {isExpanded && (
               <div className="flex items-center justify-between mb-4">
@@ -110,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {isExpanded ? (
                       <div className="flex items-center justify-between p-3">
                         <button
-                          onClick={() => selectYear(year.id)}
+                          onClick={() => handleYearSelect(year.id)}
                           className="flex-1 text-left"
                         >
                           <p className="text-sm text-white font-medium">
@@ -142,7 +153,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       </div>
                     ) : (
                       <button
-                        onClick={() => selectYear(year.id)}
+                        onClick={() => handleYearSelect(year.id)}
                         className={`w-full h-10 flex items-center justify-center text-sm font-semibold ${
                           selected
                             ? "bg-blue-600 text-white"

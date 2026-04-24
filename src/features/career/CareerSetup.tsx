@@ -1,4 +1,5 @@
 // src/features/career/CareerSetup.tsx
+
 import React, { useState } from "react";
 import { useApp } from "../../contexts/AppContext";
 import { Button } from "../../Components/ui/Button";
@@ -29,6 +30,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
     expectedEndYear: new Date().getFullYear() + 4,
   });
 
+  // Handle student form submission
   const handleStudentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!studentData.fullName.trim()) return;
@@ -43,6 +45,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
     setStep("career");
   };
 
+  // Handle career form submission
   const handleCareerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!careerData.name.trim()) return;
@@ -50,7 +53,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
     setCareer({
       id: generateId(),
       name: careerData.name.trim(),
-      institution: careerData.institution.trim() || "Not specified",
+      institution: careerData.institution.trim() || "No especificada",
       startYear: careerData.startYear,
       expectedEndYear: careerData.expectedEndYear,
     });
@@ -62,21 +65,28 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center p-4">
       <Card variant="elevated" className="max-w-md w-full p-6 sm:p-8">
-        {/* Progress indicator */}
+        {/* Step progress indicator */}
         <div className="flex items-center justify-center gap-2 mb-6">
           <div
-            className={`w-2 h-2 rounded-full transition-colors ${step === "student" ? "bg-blue-600" : "bg-gray-300"}`}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              step === "student" ? "bg-blue-600" : "bg-gray-300"
+            }`}
           />
           <div
-            className={`w-8 h-px transition-colors ${step === "career" ? "bg-blue-600" : "bg-gray-300"}`}
+            className={`w-8 h-px transition-colors ${
+              step === "career" ? "bg-blue-600" : "bg-gray-300"
+            }`}
           />
           <div
-            className={`w-2 h-2 rounded-full transition-colors ${step === "career" ? "bg-blue-600" : "bg-gray-300"}`}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              step === "career" ? "bg-blue-600" : "bg-gray-300"
+            }`}
           />
         </div>
 
         {step === "student" ? (
           <>
+            {/* Student step header */}
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -94,17 +104,18 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Welcome to Grade Manager
+                Bienvenido a Gestor de Notas
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Let's get to know you first
+                Primero, cuéntanos sobre ti
               </p>
             </div>
 
+            {/* Student form */}
             <form onSubmit={handleStudentSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Full Name *
+                  Nombre Completo *
                 </label>
                 <input
                   type="text"
@@ -115,7 +126,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                       fullName: e.target.value,
                     }))
                   }
-                  placeholder="e.g., John Doe"
+                  placeholder="ej. Juan Pérez"
                   className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                   autoFocus
@@ -124,7 +135,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Email (Optional)
+                  Correo Electrónico (Opcional)
                 </label>
                 <input
                   type="email"
@@ -135,14 +146,14 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                       email: e.target.value,
                     }))
                   }
-                  placeholder="student@university.edu"
+                  placeholder="estudiante@universidad.edu"
                   className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Student ID (Optional)
+                  Matrícula (Opcional)
                 </label>
                 <input
                   type="text"
@@ -153,7 +164,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                       studentId: e.target.value,
                     }))
                   }
-                  placeholder="e.g., 20240001"
+                  placeholder="ej. 20240001"
                   className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -164,12 +175,13 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                 fullWidth
                 className="mt-6"
               >
-                Continue
+                Continuar
               </Button>
             </form>
           </>
         ) : (
           <>
+            {/* Career step header */}
             <div className="text-center mb-6">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg
@@ -187,17 +199,18 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Your Academic Program
+                Tu Programa Académico
               </h2>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                Tell us about your studies
+                Cuéntanos sobre tus estudios
               </p>
             </div>
 
+            {/* Career form */}
             <form onSubmit={handleCareerSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Program/Career Name *
+                  Nombre de la Carrera *
                 </label>
                 <input
                   type="text"
@@ -205,7 +218,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                   onChange={(e) =>
                     setCareerData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  placeholder="e.g., Computer Science, Software Engineering"
+                  placeholder="ej. Ingeniería Informática"
                   className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
@@ -213,7 +226,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Institution (Optional)
+                  Institución (Opcional)
                 </label>
                 <input
                   type="text"
@@ -224,7 +237,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                       institution: e.target.value,
                     }))
                   }
-                  placeholder="e.g., University of Technology"
+                  placeholder="ej. Universidad Tecnológica"
                   className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -232,7 +245,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Start Year
+                    Año de Inicio
                   </label>
                   <input
                     type="number"
@@ -248,7 +261,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Expected End Year
+                    Año Previsto de Fin
                   </label>
                   <input
                     type="number"
@@ -270,7 +283,7 @@ export const CareerSetup: React.FC<CareerSetupProps> = ({ onComplete }) => {
                 fullWidth
                 className="mt-6"
               >
-                Start Managing Grades
+                Comenzar a Gestionar Notas
               </Button>
             </form>
           </>

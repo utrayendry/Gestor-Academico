@@ -1,4 +1,5 @@
 // src/contexts/AppContext.tsx
+
 import React, {
   createContext,
   useContext,
@@ -11,6 +12,7 @@ import { generateId } from "../utils/gradesUtils";
 
 const STORAGE_KEY = "grade-manager-data";
 
+// Initial application state
 const initialState: AppState = {
   student: null,
   career: null,
@@ -19,6 +21,7 @@ const initialState: AppState = {
   isLoading: true,
 };
 
+// Main state reducer handling all app actions
 const reducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
     case "SET_LOADING":
@@ -42,6 +45,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
         career: state.career ? { ...state.career, ...action.payload } : null,
       };
 
+    // Create new academic year with two default semesters
     case "ADD_YEAR": {
       const newNumber = state.years.length + 1;
       const newYear: Year = {
@@ -59,6 +63,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Remove a year and reassign selection if needed
     case "DELETE_YEAR":
       return {
         ...state,
@@ -72,6 +77,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
     case "SELECT_YEAR":
       return { ...state, selectedYearId: action.payload };
 
+    // Add semester to a year (max 2 allowed)
     case "ADD_SEMESTER": {
       const year = state.years.find((y) => y.id === action.payload);
       if (!year || year.semesters.length >= 2) return state;
@@ -96,6 +102,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Remove a semester from a year
     case "DELETE_SEMESTER": {
       return {
         ...state,
@@ -112,6 +119,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Add new subject to a semester with default Spanish name
     case "ADD_SUBJECT": {
       return {
         ...state,
@@ -125,7 +133,11 @@ const reducer = (state: AppState, action: AppAction): AppState => {
                         ...s,
                         subjects: [
                           ...s.subjects,
-                          { id: generateId(), name: "New Subject", grade: "" },
+                          {
+                            id: generateId(),
+                            name: "Nueva Materia",
+                            grade: "",
+                          },
                         ],
                       }
                     : s,
@@ -136,6 +148,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Delete a subject from a semester
     case "DELETE_SUBJECT": {
       return {
         ...state,
@@ -159,6 +172,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Update subject display name
     case "UPDATE_SUBJECT_NAME": {
       return {
         ...state,
@@ -184,6 +198,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Update subject grade value
     case "UPDATE_SUBJECT_GRADE": {
       return {
         ...state,
@@ -209,6 +224,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
+    // Load persisted data from localStorage
     case "LOAD_DATA":
       return {
         student: action.payload.student || null,
@@ -221,6 +237,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
         isLoading: false,
       };
 
+    // Reset all data to initial state
     case "RESET_DATA":
       return {
         ...initialState,
@@ -232,6 +249,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
   }
 };
 
+// Context value interface with all available actions
 interface AppContextValue {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
@@ -269,20 +287,22 @@ interface AppContextValue {
   resetToDefault: () => void;
 }
 
+// Create context with null initial value
 const AppContext = createContext<AppContextValue | null>(null);
 
+// Provider component wrapping the entire application
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Load data from localStorage on mount
+  // Load persisted data from localStorage on initial mount
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
-        // Validate data structure
+        // Validate data structure integrity
         const validYears = Array.isArray(parsed.years) ? parsed.years : [];
         const validStudent =
           parsed.student && typeof parsed.student === "object"
@@ -303,7 +323,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         });
       } catch (error) {
         console.error("Failed to parse stored data:", error);
-        // Clear corrupted data
+        // Remove corrupted data from storage
         localStorage.removeItem(STORAGE_KEY);
         dispatch({
           type: "LOAD_DATA",
@@ -318,7 +338,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, []);
 
-  // Save to localStorage whenever data changes
+  // Persist state to localStorage on every data change
   useEffect(() => {
     if (!state.isLoading) {
       localStorage.setItem(
@@ -332,43 +352,52 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [state.student, state.career, state.years, state.isLoading]);
 
-  // Action creators
+  // Memoized action creators to prevent unnecessary re-renders
   const setStudent = useCallback(
     (student: Student) => dispatch({ type: "SET_STUDENT", payload: student }),
     [],
   );
+
   const updateStudent = useCallback(
     (data: Partial<Student>) =>
       dispatch({ type: "UPDATE_STUDENT", payload: data }),
     [],
   );
+
   const setCareer = useCallback(
     (career: Career) => dispatch({ type: "SET_CAREER", payload: career }),
     [],
   );
+
   const updateCareer = useCallback(
     (data: Partial<Career>) =>
       dispatch({ type: "UPDATE_CAREER", payload: data }),
     [],
   );
+
   const addYear = useCallback(() => dispatch({ type: "ADD_YEAR" }), []);
+
   const deleteYear = useCallback(
     (id: string) => dispatch({ type: "DELETE_YEAR", payload: id }),
     [],
   );
+
   const selectYear = useCallback(
     (id: string) => dispatch({ type: "SELECT_YEAR", payload: id }),
     [],
   );
+
   const addSemester = useCallback(
     (yearId: string) => dispatch({ type: "ADD_SEMESTER", payload: yearId }),
     [],
   );
+
   const addSubject = useCallback(
     (yearId: string, semesterId: string) =>
       dispatch({ type: "ADD_SUBJECT", payload: { yearId, semesterId } }),
     [],
   );
+
   const deleteSubject = useCallback(
     (yearId: string, semesterId: string, subjectId: string) =>
       dispatch({
@@ -377,6 +406,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       }),
     [],
   );
+
   const updateSubjectName = useCallback(
     (yearId: string, semesterId: string, subjectId: string, name: string) =>
       dispatch({
@@ -385,6 +415,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       }),
     [],
   );
+
   const updateSubjectGrade = useCallback(
     (yearId: string, semesterId: string, subjectId: string, grade: string) =>
       dispatch({
@@ -393,6 +424,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
       }),
     [],
   );
+
+  // Manual save with user feedback in Spanish
   const saveToStorage = useCallback(() => {
     localStorage.setItem(
       STORAGE_KEY,
@@ -402,16 +435,19 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
         years: state.years,
       }),
     );
-    alert("Data saved successfully!");
+    alert("¡Datos guardados exitosamente!");
   }, [state.student, state.career, state.years]);
+
+  // Reset all data with confirmation in Spanish
   const resetToDefault = useCallback(() => {
-    if (confirm("Are you sure? This will erase all your data.")) {
+    if (confirm("¿Estás seguro? Esto borrará todos tus datos.")) {
       localStorage.removeItem(STORAGE_KEY);
       dispatch({ type: "RESET_DATA" });
-      alert("Data reset.");
+      alert("Datos restablecidos correctamente.");
     }
   }, []);
 
+  // Combine all values for the context provider
   const value: AppContextValue = {
     state,
     dispatch,
@@ -434,7 +470,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };
 
-// Main hook
+// Custom hook to access app context with error handling
 export const useApp = () => {
   const context = useContext(AppContext);
   if (!context) throw new Error("useApp must be used within an AppProvider");

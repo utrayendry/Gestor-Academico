@@ -13,30 +13,30 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
+  // Handle responsive breakpoints and sidebar behavior
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
-
       setIsMobile(mobile);
 
       if (mobile) {
-        setSidebarExpanded(true);
+        setSidebarExpanded(true); // Keep expanded in mobile drawer mode
       } else {
-        setMobileOpen(false);
+        setMobileOpen(false); // Close mobile drawer on desktop
       }
     };
 
     handleResize();
-
     window.addEventListener("resize", handleResize);
-
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Calculate sidebar width based on state
   const sidebarWidth = sidebarExpanded ? 288 : 80;
 
   return (
     <div className="min-h-screen bg-slate-900">
+      {/* Navigation sidebar */}
       <Sidebar
         isExpanded={sidebarExpanded}
         isMobile={isMobile}
@@ -45,19 +45,22 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         onToggleExpand={() => setSidebarExpanded((prev) => !prev)}
       />
 
+      {/* Top header bar */}
       <Header
         onMenuClick={() => setMobileOpen(true)}
         sidebarWidth={sidebarWidth}
         isMobile={isMobile}
       />
 
+      {/* Main content area */}
       <main
         style={{
           marginLeft: !isMobile ? sidebarWidth : 0,
         }}
-        className="pt-20 px-6 lg:px-10 pb-10 transition-all duration-300"
+        className="pt-16 transition-all duration-300"
       >
-        {children}
+        {/* Content container with responsive max-width */}
+        <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">{children}</div>
       </main>
     </div>
   );
