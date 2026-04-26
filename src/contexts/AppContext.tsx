@@ -6,9 +6,10 @@ import React, {
   useReducer,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import type { AppState, AppAction, Year, Career, Student } from "../types";
-import { generateId } from "../utils/gradesUtils";
+import { generateId, normalizeGrade } from "../utils/gradesUtils";
 
 const STORAGE_KEY = "grade-manager-data";
 
@@ -64,15 +65,22 @@ const reducer = (state: AppState, action: AppAction): AppState => {
     }
 
     // Remove a year and reassign selection if needed
-    case "DELETE_YEAR":
+    case "DELETE_YEAR": {
+      // Filter out the deleted year first to work with updated array
+      const filteredYears = state.years.filter((y) => y.id !== action.payload);
+      const isDeletingSelected = state.selectedYearId === action.payload;
+
       return {
         ...state,
-        years: state.years.filter((y) => y.id !== action.payload),
-        selectedYearId:
-          state.selectedYearId === action.payload && state.years.length > 0
-            ? state.years[0].id
-            : state.selectedYearId,
+        years: filteredYears,
+        // Determine new selection based on filtered years
+        selectedYearId: isDeletingSelected
+          ? filteredYears.length > 0
+            ? filteredYears[0].id
+            : null
+          : state.selectedYearId,
       };
+    }
 
     case "SELECT_YEAR":
       return { ...state, selectedYearId: action.payload };
@@ -198,8 +206,11 @@ const reducer = (state: AppState, action: AppAction): AppState => {
       };
     }
 
-    // Update subject grade value
+    // Update subject grade value with validation (2.0 - 5.0 range)
     case "UPDATE_SUBJECT_GRADE": {
+      // Normalize and validate grade before storing
+      const validatedGrade = normalizeGrade(action.payload.grade);
+
       return {
         ...state,
         years: state.years.map((y) =>
@@ -212,7 +223,7 @@ const reducer = (state: AppState, action: AppAction): AppState => {
                         ...s,
                         subjects: s.subjects.map((sub) =>
                           sub.id === action.payload.subjectId
-                            ? { ...sub, grade: action.payload.grade }
+                            ? { ...sub, grade: validatedGrade }
                             : sub,
                         ),
                       }
@@ -295,6 +306,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Ref to access latest state without dependencies
+  const stateRef = useRef(state);
+
+  // Keep ref synchronized with current state
+  useEffect(() => {
+    stateRef.current = state;
+  });
 
   // Load persisted data from localStorage on initial mount
   useEffect(() => {
@@ -425,18 +444,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({
     [],
   );
 
-  // Manual save with user feedback in Spanish
+  // Stable save function using ref to avoid dependencies
+  // This prevents child components from re-rendering when state changes
   const saveToStorage = useCallback(() => {
+    const { student, career, years } = stateRef.current;
     localStorage.setItem(
       STORAGE_KEY,
-      JSON.stringify({
-        student: state.student,
-        career: state.career,
-        years: state.years,
-      }),
+      JSON.stringify({ student, career, years }),
     );
     alert("¡Datos guardados exitosamente!");
-  }, [state.student, state.career, state.years]);
+  }, []);
 
   // Reset all data with confirmation in Spanish
   const resetToDefault = useCallback(() => {

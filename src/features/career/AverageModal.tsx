@@ -38,11 +38,11 @@ export const AverageModal: React.FC<AverageModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Dynamic color based on grade (0-5 scale)
+  // Dynamic color based on grade (2.0 - 5.0 scale)
   const getAverageColor = (avg: number) => {
     if (avg >= 4.5) return "text-emerald-400";
-    if (avg >= 4.0) return "text-blue-400";
-    if (avg >= 3.0) return "text-yellow-400";
+    if (avg >= 3.5) return "text-blue-400";
+    if (avg >= 2.5) return "text-amber-400";
     return "text-red-400";
   };
 

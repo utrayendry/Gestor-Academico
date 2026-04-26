@@ -71,6 +71,17 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
     }
   }, [yearId, semesterId, subject.id, deleteSubject]);
 
+  // Determine if grade is valid for visual feedback
+  const getGradeValidity = (grade: string): boolean => {
+    if (grade === "") return true; // Empty is allowed (not yet typed)
+    const num = parseFloat(grade);
+    if (isNaN(num)) return false; // Invalid input
+    return num >= 2.0 && num <= 5.0; // Valid range check
+  };
+
+  const isGradeValid = getGradeValidity(subject.grade);
+  const hasGradeTyped = subject.grade !== "";
+
   return (
     <tr className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
       {/* Subject name cell */}
@@ -95,15 +106,28 @@ export const SubjectRow: React.FC<SubjectRowProps> = ({
         )}
       </td>
 
-      {/* Grade input cell */}
+      {/* Grade input cell with validation feedback */}
       <td className="py-3 px-4">
         <input
           type="text"
           inputMode="decimal"
           value={subject.grade}
           onChange={handleGradeChange}
-          className={`w-20 px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded text-center focus:outline-none focus:ring-2 focus:ring-blue-500 ${getGradeColor(subject.grade)}`}
           placeholder="—"
+          title="Rango válido: 2.0 - 5.0"
+          className={`
+            w-20 px-2 py-1 
+            bg-white dark:bg-gray-700 
+            border rounded text-center 
+            focus:outline-none focus:ring-2 focus:ring-blue-500
+            transition-colors duration-200
+            ${getGradeColor(subject.grade)}
+            ${
+              hasGradeTyped && !isGradeValid
+                ? "border-red-400 dark:border-red-500 bg-red-50 dark:bg-red-900/20"
+                : "border-gray-300 dark:border-gray-600"
+            }
+          `}
         />
       </td>
 
